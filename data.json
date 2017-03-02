@@ -1,0 +1,14 @@
+[
+	{
+		"mac" = "Vietnam",
+		"lat": -25.363, 
+		"lng": 131.044,
+		"name": "Vietnam"
+	},
+	{
+		"mac" = "China",
+		"lat": -25.363, 
+		"lng": 131.044,
+		"name": "China"
+	}
+]

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Maps</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+	 
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+	<script type="text/javascript">
+	var map, places, infoWindow, bounds, NE, SW;
+	var markers = [];
+	var results = Array();	
+	
+
+	var results = [
+		[21.036226383259624,105.81629186868668],
+	
+	];
+
+	</script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>		
+		var map, places, infoWindow, bounds, NE, SW;
+		var images = "http://img.f29.vnecdn.net/2016/05/27/1464303439472-1464306660_1464306682_180x108.jpg";
+		var Circle; //Circle object 
+		var CirclePoints = []; //Circle drawing points 
+		var CircleCenterMarker, CircleResizeMarker; 
+		var circle_moving = false; //To track Circle moving 
+		var circle_resizing = false; //To track Circle resizing 
+		var radius = 500; //1 km 
+		var min_radius = 0.5; //0.5km 
+		var max_radius = 5; //5km 
+		var circle;
+		var dem =0;
+		var countPlace=0;
+		
+		function initMap() {
+			map = new google.maps.Map(document.getElementById('map'), {
+			  center: {lat: 21.0365143, lng: 105.8138111},
+			  zoom: 16
+			});
+			//google.maps.geometry.spherical.computeDistanceBetween(google.maps.LatLng(results[30][0],results[30][1]), google.maps.LatLng(35.454677105398524,139.46677286177874));
+			google.maps.event.addListener(map, 'bounds_changed', createMaker);
+			//check tạo độ click			
+			google.maps.event.addListener(map, 'click', function(event) {
+				console.log("click:tọa độ X:"+event.latLng.lat() + "tạo độ Y: "+event.latLng.lng());				
+			});
+			//draw();
+			
+			
+		}
+		
+		function createMaker(){
+			dem=0;
+			clearMarkers();
+			clearResults();
+			var bounds = map.getBounds();
+			var NE = bounds.getNorthEast();
+			var SW = bounds.getSouthWest();
+			var minx = SW.lat();
+			var miny = SW.lng();
+			var maxx = NE.lat();
+			var maxy = NE.lng();
+			
+			for (var i = 0; i < results.length; i++) {
+				var point = results[i];			
+				if(point[0] > minx & point[0] < maxx & point[1] > miny & point[1] < maxy) {
+					var myLatLng = new google.maps.LatLng(point[0], point[1]);					
+					markers[i] = new google.maps.Marker({
+					  position: myLatLng,
+					  //animation: google.maps.Animation.DROP,
+					  map: map,
+					  //icon:images
+					});
+					dem++;
+				}
+			}
+			
+		}
+		
+		function draw(){		
+			circle = new google.maps.Circle({
+			  strokeColor: '#000',
+			  strokeOpacity: 0.2,
+			  strokeWeight: 2,
+			  fillColor: '#FF0000',
+			  fillOpacity: 0.35,
+			  map: map,
+			  center: {lat: 21.0365143, lng: 105.8138111},
+			  radius:  radius,
+			  editable: true,
+			  draggable: true,
+			});
+			circle.addListener('bounds_changed', showNewCircle);	
+			infoWindow = new google.maps.InfoWindow();
+		}
+		function showNewCircle(event){				
+			var ne = circle.getBounds().getNorthEast();
+			var sw = circle.getBounds().getSouthWest();	
+			var minx = sw.lat();
+			var miny = sw.lng();
+			var maxx = ne.lat();
+			var maxy = ne.lng();
+			countPlace = 0 ;
+			//console.log(circle.getRadius());
+			//console.log(circle.getCenter());
+			for (var i = 0; i < results.length; i++) { 
+				var point = results[i];			
+				if(point[0] > minx & point[0] < maxx & point[1] > miny & point[1] < maxy) {	
+					var myLatLng = new google.maps.LatLng(point[0], point[1]);	
+					
+					var distance = google.maps.geometry.spherical.computeDistanceBetween(circle.getCenter(),myLatLng);
+					if(distance<circle.getRadius()){
+						countPlace++;
+					}					
+				}			
+			}			
+			var contentString = '<b>Tổng số điểm:'+ dem +'</b><br>'+ '<b>Số điểm trong hình tròn:'+ countPlace +'</b>' + '<br>'+
+				  'New north-east corner: ' + ne.lat() + ', ' + ne.lng() + '<br>' +
+				  'New south-west corner: ' + sw.lat() + ', ' + sw.lng();
+
+			  // Set the info window's content and position.
+			 
+			infoWindow.setContent(contentString);
+			infoWindow.setPosition(ne);
+			infoWindow.open(map);
+					
+		}
+		function clearMarkers() {
+		  for (var i = 0; i < markers.length; i++) {
+			if (markers[i]) {
+			  //markers[i].setMap(null);
+			  markers[i].setVisible(false); 
+			}
+		  }
+		  markers = [];
+		}
+		function clearResults() {
+		 // var results = document.getElementById('results');
+		  //while (results.childNodes[0]) {
+			//results.removeChild(results.childNodes[0]);
+		 // }
+		}
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=geometry"
+    async defer></script>
+  </body>
+</html>
